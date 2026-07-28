@@ -32,8 +32,8 @@ body{background:#0f172a;color:#e2e8f0;font-family:system-ui,sans-serif;display:f
 #nav button:hover:not(:disabled){background:#475569}
 #nav button:disabled{opacity:.35;cursor:default}
 #page-info{font-size:12px;color:#94a3b8;min-width:80px;text-align:center}
-#speed-select{background:#334155;border:1px solid #475569;color:#e2e8f0;padding:3px 7px;border-radius:4px;font-size:12px;cursor:pointer}
-#speed-select:focus{outline:none;border-color:#a78bfa}
+#speed-select,#mode-select{background:#334155;border:1px solid #475569;color:#e2e8f0;padding:3px 7px;border-radius:4px;font-size:12px;cursor:pointer}
+#speed-select:focus,#mode-select:focus{outline:none;border-color:#a78bfa}
 #btn-play{min-width:80px}
 #btn-play.playing{background:#7c3aed;color:#fff}
 #thumbs{background:#1e293b;border-top:1px solid #334155;padding:5px 8px;display:flex;gap:5px;overflow-x:auto;flex-shrink:0;max-height:80px}
@@ -69,6 +69,10 @@ body{background:#0f172a;color:#e2e8f0;font-family:system-ui,sans-serif;display:f
         <option value="20000">20 秒</option>
         <option value="30000">30 秒</option>
       </select>
+      <select id="mode-select" title="自動播放範圍">
+        <option value="chapter" selected>本章循環</option>
+        <option value="book">全書連播</option>
+      </select>
       <button id="btn-play">▶ 自動播放</button>
     </div>
     <div id="thumbs"></div>
@@ -91,6 +95,7 @@ var btnNext=document.getElementById("btn-next");
 var thumbsEl=document.getElementById("thumbs");
 var btnPlay=document.getElementById("btn-play");
 var speedSelect=document.getElementById("speed-select");
+var modeSelect=document.getElementById("mode-select");
 
 // Build sidebar
 GROUPS.forEach(function(g,i){
@@ -189,10 +194,13 @@ document.addEventListener("mousemove",function(e){if(!dragging)return;tx=e.clien
 document.addEventListener("mouseup",function(){dragging=false;viewer.classList.remove("dragging");});
 viewer.addEventListener("dblclick",function(){scale=1;tx=0;ty=0;fitImage();});
 
-// Autoplay — 章節內循環：到當前章最後一頁回該章第一頁，不跳下一章、不全域循環
+// Autoplay — 兩種模式：
+//   chapter（本章循環）：到當前章最後一頁回該章第一頁
+//   book（全書連播）：末頁接下一章首頁，全書播完回到第一章（重複播放）
 function autoNext(){
   var group=GROUPS[curGroup];
   if(curSlide<group.images.length-1){loadSlide(curGroup,curSlide+1);}
+  else if(modeSelect.value==="book"){switchGroup((curGroup+1)%GROUPS.length);}
   else{loadSlide(curGroup,0);}
 }
 function stopAuto(){
