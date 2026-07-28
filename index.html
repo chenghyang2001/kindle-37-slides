@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Kindle #37｜Spec-Driven Development for Legacy Code</title>
+<style>
+  * { box-sizing: border-box; }
+  body { margin:0; display:flex; height:100vh; font-family:system-ui,"Microsoft JhengHei",sans-serif; background:#111; color:#eee; }
+  aside { width:300px; flex:none; overflow-y:auto; background:#1b1b1b; border-right:1px solid #333; }
+  aside h1 { font-size:15px; padding:14px; margin:0; border-bottom:1px solid #333; }
+  aside ul { list-style:none; margin:0; padding:0; }
+  aside li { padding:10px 14px; font-size:13px; cursor:pointer; border-bottom:1px solid #262626; }
+  aside li:hover { background:#242424; }
+  aside li.on { background:#2d5cff; color:#fff; }
+  main { flex:1; display:flex; flex-direction:column; align-items:center; justify-content:center; padding:12px; }
+  main img { max-width:100%; max-height:calc(100vh - 70px); object-fit:contain; background:#fff; }
+  footer { padding:8px; font-size:13px; color:#aaa; }
+</style>
+</head>
+<body>
+<aside>
+  <h1>Kindle #37｜Spec-Driven Development for Legacy Code</h1>
+  <ul id="nav">
+      <li data-index="0">K37-00-前言</li>
+      <li data-index="1">K37-01-第一部-讓遺留軟體重新受控</li>
+      <li data-index="2">K37-02-第二部-探索既有系統</li>
+      <li data-index="3">K37-03-第三部-還原需求與業務知識</li>
+      <li data-index="4">K37-04-第四部-建立行為安全網</li>
+      <li data-index="5">K37-05-第五部-建立活規格</li>
+      <li data-index="6">K37-06-第六部-安全引導AI編碼代理</li>
+      <li data-index="7">K37-07-第七部-安全重構遷移與發布</li>
+  </ul>
+</aside>
+<main>
+  <img id="slide" alt="投影片">
+  <footer id="meta"></footer>
+</main>
+<script>
+const SECTIONS = [{"slug": "K37-00-前言", "display": "K37-00-前言", "images": ["page-001.png", "page-002.png", "page-003.png", "page-004.png", "page-005.png", "page-006.png", "page-007.png", "page-008.png", "page-009.png", "page-010.png", "page-011.png", "page-012.png", "page-013.png", "page-014.png", "page-015.png"]}, {"slug": "K37-01-第一部-讓遺留軟體重新受控", "display": "K37-01-第一部-讓遺留軟體重新受控", "images": ["page-001.png", "page-002.png", "page-003.png", "page-004.png", "page-005.png", "page-006.png", "page-007.png", "page-008.png", "page-009.png", "page-010.png", "page-011.png", "page-012.png", "page-013.png", "page-014.png", "page-015.png", "page-016.png"]}, {"slug": "K37-02-第二部-探索既有系統", "display": "K37-02-第二部-探索既有系統", "images": ["page-001.png", "page-002.png", "page-003.png", "page-004.png", "page-005.png", "page-006.png", "page-007.png", "page-008.png", "page-009.png", "page-010.png", "page-011.png", "page-012.png", "page-013.png", "page-014.png", "page-015.png"]}, {"slug": "K37-03-第三部-還原需求與業務知識", "display": "K37-03-第三部-還原需求與業務知識", "images": ["page-001.png", "page-002.png", "page-003.png", "page-004.png", "page-005.png", "page-006.png", "page-007.png", "page-008.png", "page-009.png", "page-010.png", "page-011.png", "page-012.png", "page-013.png", "page-014.png", "page-015.png", "page-016.png", "page-017.png", "page-018.png", "page-019.png", "page-020.png", "page-021.png"]}, {"slug": "K37-04-第四部-建立行為安全網", "display": "K37-04-第四部-建立行為安全網", "images": ["page-001.png", "page-002.png", "page-003.png", "page-004.png", "page-005.png", "page-006.png", "page-007.png", "page-008.png", "page-009.png", "page-010.png", "page-011.png", "page-012.png", "page-013.png", "page-014.png", "page-015.png", "page-016.png", "page-017.png", "page-018.png"]}, {"slug": "K37-05-第五部-建立活規格", "display": "K37-05-第五部-建立活規格", "images": ["page-001.png", "page-002.png", "page-003.png", "page-004.png", "page-005.png", "page-006.png", "page-007.png", "page-008.png", "page-009.png", "page-010.png", "page-011.png", "page-012.png", "page-013.png", "page-014.png", "page-015.png", "page-016.png", "page-017.png", "page-018.png", "page-019.png"]}, {"slug": "K37-06-第六部-安全引導AI編碼代理", "display": "K37-06-第六部-安全引導AI編碼代理", "images": ["page-001.png", "page-002.png", "page-003.png", "page-004.png", "page-005.png", "page-006.png", "page-007.png", "page-008.png", "page-009.png", "page-010.png", "page-011.png", "page-012.png", "page-013.png", "page-014.png", "page-015.png", "page-016.png", "page-017.png", "page-018.png"]}, {"slug": "K37-07-第七部-安全重構遷移與發布", "display": "K37-07-第七部-安全重構遷移與發布", "images": ["page-001.png", "page-002.png", "page-003.png", "page-004.png", "page-005.png", "page-006.png", "page-007.png", "page-008.png", "page-009.png", "page-010.png"]}];
+let si = 0, pi = 0;
+const img = document.getElementById('slide');
+const meta = document.getElementById('meta');
+const nav = document.getElementById('nav');
+function draw() {
+  const sec = SECTIONS[si];
+  if (!sec || !sec.images.length) { meta.textContent = '此段落沒有投影片'; img.removeAttribute('src'); return; }
+  pi = Math.max(0, Math.min(pi, sec.images.length - 1));
+  img.src = sec.slug + '/' + sec.images[pi];
+  meta.textContent = sec.display + '  —  ' + (pi + 1) + ' / ' + sec.images.length + '   (←→ 翻頁, ↑↓ 換段落)';
+  [...nav.children].forEach((li, i) => li.classList.toggle('on', i === si));
+}
+function go(dsec, dpage) {
+  if (dsec) { si = (si + dsec + SECTIONS.length) % SECTIONS.length; pi = 0; }
+  else { pi += dpage; }
+  draw();
+}
+nav.addEventListener('click', e => { if (e.target.dataset.index !== undefined) { si = +e.target.dataset.index; pi = 0; draw(); } });
+document.addEventListener('keydown', e => {
+  const map = { ArrowRight: () => go(0, 1), ArrowLeft: () => go(0, -1), ArrowDown: () => go(1, 0), ArrowUp: () => go(-1, 0) };
+  if (map[e.key]) { e.preventDefault(); map[e.key](); }
+});
+draw();
+</script>
+</body>
+</html>
