@@ -14,8 +14,16 @@
   aside li:hover { background:#242424; }
   aside li.on { background:#2d5cff; color:#fff; }
   main { flex:1; display:flex; flex-direction:column; align-items:center; justify-content:center; padding:12px; }
-  main img { max-width:100%; max-height:calc(100vh - 70px); object-fit:contain; background:#fff; }
-  footer { padding:8px; font-size:13px; color:#aaa; }
+  main img { max-width:100%; max-height:calc(100vh - 118px); object-fit:contain; background:#fff; }
+  #ctrl { display:flex; gap:10px; align-items:center; padding:8px 0 2px; }
+  #ctrl button, #ctrl select {
+    background:#1f1f1f; color:#eee; border:1px solid #444; border-radius:8px;
+    padding:6px 16px; font-size:14px; cursor:pointer;
+  }
+  #ctrl button:hover, #ctrl select:hover { background:#2e2e2e; }
+  #ctrl button.playing { background:#2d5cff; border-color:#2d5cff; }
+  #pos { font-size:14px; color:#ccc; min-width:64px; text-align:center; }
+  footer { padding:6px; font-size:13px; color:#aaa; }
 </style>
 </head>
 <body>
@@ -35,6 +43,19 @@
 </aside>
 <main>
   <img id="slide" alt="投影片">
+  <div id="ctrl">
+    <button id="prev" title="上一頁（←）">◀</button>
+    <span id="pos">1 / 1</span>
+    <button id="next" title="下一頁（→）">▶</button>
+    <select id="ival" title="自動播放間隔">
+      <option value="5">5 秒</option>
+      <option value="10" selected>10 秒</option>
+      <option value="15">15 秒</option>
+      <option value="20">20 秒</option>
+      <option value="30">30 秒</option>
+    </select>
+    <button id="play" title="自動播放，播到最後一頁自動從頭重複（Space）">▶ 自動播放</button>
+  </div>
   <footer id="meta"></footer>
 </main>
 <script>
@@ -43,22 +64,51 @@ let si = 0, pi = 0;
 const img = document.getElementById('slide');
 const meta = document.getElementById('meta');
 const nav = document.getElementById('nav');
+const pos = document.getElementById('pos');
+const playBtn = document.getElementById('play');
+const ival = document.getElementById('ival');
 function draw() {
   const sec = SECTIONS[si];
   if (!sec || !sec.images.length) { meta.textContent = '此段落沒有投影片'; img.removeAttribute('src'); return; }
   pi = Math.max(0, Math.min(pi, sec.images.length - 1));
   img.src = sec.slug + '/' + sec.images[pi];
-  meta.textContent = sec.display + '  —  ' + (pi + 1) + ' / ' + sec.images.length + '   (←→ 翻頁, ↑↓ 換段落)';
+  pos.textContent = (pi + 1) + ' / ' + sec.images.length;
+  meta.textContent = sec.display + '   (←→ 翻頁, ↑↓ 換段落, Space 播放/暫停)';
   [...nav.children].forEach((li, i) => li.classList.toggle('on', i === si));
 }
-function go(dsec, dpage) {
-  if (dsec) { si = (si + dsec + SECTIONS.length) % SECTIONS.length; pi = 0; }
-  else { pi += dpage; }
+/* 跨段落連續翻頁：末頁接下一段落首頁，全書播完自動回到第一段（重複播放） */
+function nextPage() {
+  if (pi < SECTIONS[si].images.length - 1) { pi++; }
+  else { si = (si + 1) % SECTIONS.length; pi = 0; }
   draw();
 }
+function prevPage() {
+  if (pi > 0) { pi--; }
+  else { si = (si - 1 + SECTIONS.length) % SECTIONS.length; pi = SECTIONS[si].images.length - 1; }
+  draw();
+}
+function goSection(d) { si = (si + d + SECTIONS.length) % SECTIONS.length; pi = 0; draw(); }
+/* ── 自動播放 ── */
+let timer = null;
+function startPlay() {
+  stopPlay();
+  timer = setInterval(nextPage, (+ival.value || 10) * 1000);
+  playBtn.textContent = '⏸ 暫停';
+  playBtn.classList.add('playing');
+}
+function stopPlay() {
+  if (timer) { clearInterval(timer); timer = null; }
+  playBtn.textContent = '▶ 自動播放';
+  playBtn.classList.remove('playing');
+}
+playBtn.addEventListener('click', () => timer ? stopPlay() : startPlay());
+ival.addEventListener('change', () => { if (timer) startPlay(); }); // 播放中改秒數立即生效
+document.getElementById('prev').addEventListener('click', prevPage);
+document.getElementById('next').addEventListener('click', nextPage);
 nav.addEventListener('click', e => { if (e.target.dataset.index !== undefined) { si = +e.target.dataset.index; pi = 0; draw(); } });
 document.addEventListener('keydown', e => {
-  const map = { ArrowRight: () => go(0, 1), ArrowLeft: () => go(0, -1), ArrowDown: () => go(1, 0), ArrowUp: () => go(-1, 0) };
+  if (e.key === ' ') { e.preventDefault(); timer ? stopPlay() : startPlay(); return; }
+  const map = { ArrowRight: nextPage, ArrowLeft: prevPage, ArrowDown: () => goSection(1), ArrowUp: () => goSection(-1) };
   if (map[e.key]) { e.preventDefault(); map[e.key](); }
 });
 draw();
